@@ -1,15 +1,12 @@
-using Castle.Core.Logging;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Mille_test.Controllers;
 using Mille_test.Models;
 using Mille_test.Services;
 using NSubstitute;
-using NSubstitute.ExceptionExtensions;
 
 namespace TestProject
 {
-    public class Tests
+    public class ControllerTests
     {
         private ILogger<ValuesController> _logger;
         private IValueService _valueService;
