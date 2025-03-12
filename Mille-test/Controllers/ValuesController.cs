@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using Microsoft.AspNetCore.Mvc;
+using Mille_test.Models;
+using Mille_test.Services;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -8,43 +11,96 @@ namespace Mille_test.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly ILogger<ValuesController> _logger;
+        private readonly IValueService _valueService;
 
-        public ValuesController(ILogger<HomeController> logger)
+        public ValuesController(
+                IValueService valueService,
+                ILogger<ValuesController> logger
+            )
         {
+            _valueService = valueService;
             _logger = logger;
         }
 
-        // GET: api/<ValuesController>
+        /// <summary>
+        /// Gets all existing items
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public IEnumerable<SimpleModel> Get()
         {
-            return new string[] { "value1", "value2" };
+            return _valueService.GetAll();
         }
 
-        // GET api/<ValuesController>/5
+        /// <summary>
+        /// Gets single existing item or throws 404
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("{id}")]
-        public string Get(int id)
+        public SimpleModel Get(int id)
         {
-            return "value";
+            try
+            {
+                return _valueService.GetById(id);
+            }
+            catch (ArgumentOutOfRangeException e)
+            {
+                HttpContext.Response.StatusCode = 404;
+                HttpContext.Response.Headers.Clear();
+                _logger.Log(LogLevel.Error, $"item not found for {id}");
+                return null;
+            }
         }
 
-        // POST api/<ValuesController>
+        /// <summary>
+        /// Inserts a new item
+        /// </summary>
+        /// <param name="value"></param>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public void Post([FromBody] SimpleModel value)
         {
+            _valueService.Insert(value);
         }
 
-        // PUT api/<ValuesController>/5
+        /// <summary>
+        /// Updates existing item or throws 404
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="value"></param>
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public void Put(int id, [FromBody] SimpleModel value)
         {
+            try
+            {
+                _valueService.Update(id, value);
+            }
+            catch (ArgumentOutOfRangeException e)
+            {
+                HttpContext.Response.StatusCode = 404;
+                HttpContext.Response.Headers.Clear();
+                _logger.Log(LogLevel.Error, $"item not found for {id}");
+            }
         }
 
-        // DELETE api/<ValuesController>/5
+        /// <summary>
+        /// Deletes existing item or throws 404
+        /// </summary>
+        /// <param name="id"></param>
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
+            try
+            {
+                _valueService.Delete(id);
+            }
+            catch (ArgumentOutOfRangeException e)
+            {
+                HttpContext.Response.StatusCode = 404;
+                HttpContext.Response.Headers.Clear();
+                _logger.Log(LogLevel.Error, $"item not found for {id}");
+            }
         }
     }
 }

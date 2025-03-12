@@ -15,8 +15,7 @@ namespace Mille_test.Controllers
 
         public IActionResult Index()
         {
-            return new JsonResult(new { test = "test" });
+            return Redirect("/swagger");
         }
-
     }
 }
